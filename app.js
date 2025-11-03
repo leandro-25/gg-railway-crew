@@ -4,12 +4,7 @@ const cors = require('cors');
 
 // Importar configurações e rotas
 const supabase = require('./config/database');
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const transactionRoutes = require('./routes/transactionRoutes');
-const strategyRoutes = require('./routes/strategyRoutes');
-const portfolioRoutes = require('./routes/portfolioRoutes');
-const newsRoutes = require('./routes/newsRoutes');
+const apiRoutes = require('./routes'); // Importa o arquivo index.js automaticamente
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -79,13 +74,21 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Usar as rotas da API
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/strategies', strategyRoutes);
-app.use('/api/portfolio', portfolioRoutes);
-app.use('/api', newsRoutes);
+// Middleware para log de requisições
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Usar as rotas da API com prefixo /api
+app.use('/api', apiRoutes);
+
+// Middleware para rotas não encontradas (deve vir depois das rotas da API)
+const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
+app.use(notFoundHandler);
+
+// Middleware de tratamento de erros (deve vir por último)
+app.use(errorHandler);
 
 // Configuração do servidor para ouvir em todos os endereços de rede
 const server = app.listen(port, '0.0.0.0', () => {

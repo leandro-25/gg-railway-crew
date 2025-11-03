@@ -27,7 +27,7 @@ const allowedOrigins = [
   'devtools://devtools',
   'ws://localhost:*',
   'http://localhost:*',
-  'https://gg-railway-production.up.railway.app',
+  'https://gg-railway-crew-production.up.railway.app',
   'https://seu-frontend.railway.app'  // Substitua pelo domínio real do seu frontend
 ];
 

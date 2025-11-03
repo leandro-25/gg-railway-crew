@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const strategyRoutes = require('./routes/strategyRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
+const newsRoutes = require('./routes/newsRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -78,14 +79,29 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Usar as rotas
-app.use('/api', authRoutes);
-app.use('/api', userRoutes);
-app.use('/api', transactionRoutes);
-app.use('/api', strategyRoutes);
-app.use('/api', portfolioRoutes);
+// Usar as rotas da API
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/strategies', strategyRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api', newsRoutes);
 
-// Iniciar o servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+// Configuração do servidor para ouvir em todos os endereços de rede
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});
+
+// Tratamento de erros não capturados
+process.on('unhandledRejection', (err) => {
+  console.error('Erro não tratado:', err);
+  server.close(() => process.exit(1));
+});
+
+process.on('SIGTERM', () => {
+  console.log('Recebido SIGTERM. Encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    process.exit(0);
+  });
 });

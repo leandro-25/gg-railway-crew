@@ -1,0 +1,7 @@
+[build]
+  builder = "nixpacks"
+  buildCommand = "npm install"
+  nixPkgs = ['nodejs-18']
+
+[deploy]
+  startCommand = "npm start"

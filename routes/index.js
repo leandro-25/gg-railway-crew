@@ -9,19 +9,59 @@ const strategyRoutes = require('./strategyRoutes');
 const portfolioRoutes = require('./portfolioRoutes');
 const newsRoutes = require('./newsRoutes');
 
-// Configurar rotas
+// Log de rotas acessadas
+router.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Rotas sem autenticação
 router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
-router.use('/usuarios', userRoutes); // Rota alternativa em português
-router.use('/transactions', transactionRoutes);
-router.use('/transacoes', transactionRoutes); // Rota alternativa em português
-router.use('/strategies', strategyRoutes);
-router.use('/carteira', portfolioRoutes);
+
+// Rotas com autenticação
+const { authenticate } = require('../middlewares/auth');
+
+// Rotas de usuário
+router.get('/usuarios', authenticate, (req, res, next) => {
+  // Rota para buscar dados do usuário atual
+  const userController = require('../controllers/userController');
+  return userController.getUser(req, res, next);
+});
+
+// Rotas de carteira
+router.get('/carteira', authenticate, (req, res, next) => {
+  const portfolioController = require('../controllers/portfolioController');
+  return portfolioController.getPortfolio(req, res, next);
+});
+
+// Rotas de transações
+router.get('/transacoes', authenticate, (req, res, next) => {
+  const transactionController = require('../controllers/transactionController');
+  return transactionController.getTransactions(req, res, next);
+});
+
+// Rotas adicionais (mantendo as existentes)
+router.use('/users', authenticate, userRoutes);
+router.use('/transactions', authenticate, transactionRoutes);
+router.use('/strategies', authenticate, strategyRoutes);
 router.use('', newsRoutes); // Rotas de notícias (raiz do /api)
 
-// Rota de teste
+// Rota de status (para verificar se a API está online)
 router.get('/status', (req, res) => {
-  res.json({ status: 'API está funcionando', timestamp: new Date() });
+  res.json({ 
+    status: 'API está funcionando', 
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
+  });
+});
+
+// Rota de teste de autenticação (protegida)
+router.get('/test-auth', authenticate, (req, res) => {
+  res.json({ 
+    message: 'Autenticação bem-sucedida!',
+    user: req.user
+  });
 });
 
 module.exports = router;

@@ -52,6 +52,12 @@ router.get('/estrategias', authenticate, (req, res, next) => {
   return strategyController.getStrategies(req, res, next);
 });
 
+// Rota para buscar ativos de uma estratégia específica
+router.get('/estrategias/:id/ativos', authenticate, (req, res, next) => {
+  const strategyController = require('../controllers/strategyController');
+  return strategyController.getStrategyAssets(req, res, next);
+});
+
 // Rotas adicionais (mantendo as existentes)
 router.use('/users', authenticate, userRoutes);
 router.use('/transactions', authenticate, transactionRoutes);

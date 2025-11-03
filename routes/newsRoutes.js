@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
+// URL do serviço CrewAI (ajuste conforme necessário)
+const CREWAI_SERVICE_URL = process.env.CREWAI_SERVICE_URL || 'http://localhost:5000';
+
 // Rota para buscar notícias sobre um ativo
 router.post('/noticias', async (req, res) => {
   try {
@@ -11,22 +14,21 @@ router.post('/noticias', async (req, res) => {
       return res.status(400).json({ error: 'Ticker do ativo não fornecido' });
     }
 
-    // Aqui você pode implementar a lógica para buscar notícias
-    // Por enquanto, vamos retornar um mock
-    const mockNews = {
-      resumo: `Notícias sobre ${ticker} - Aqui você pode integrar com uma API de notícias financeiras como NewsAPI, Alpha Vantage, etc.`,
-      impacto: 'neutro',
-      noticias: [
-        {
-          titulo: `Análise: ${ticker} apresenta desempenho estável`,
-          fonte: 'Sistema',
-          data: new Date().toISOString(),
-          resumo: 'Este é um exemplo de notícia. Integre com uma API de notícias real para obter dados em tempo real.'
-        }
-      ]
-    };
-
-    res.json(mockNews);
+    // Chamar o serviço CrewAI para obter notícias
+    const response = await axios.post(`${CREWAI_SERVICE_URL}/noticias`, { 
+      ticker 
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Retornar a resposta do serviço CrewAI
+    res.json({
+      resumo: response.data.resumo || `Notícias sobre ${ticker}`,
+      impacto: response.data.impacto || 'neutro',
+      noticias: response.data.noticias || []
+    });
   } catch (error) {
     console.error('Erro ao buscar notícias:', error);
     res.status(500).json({ 

@@ -46,6 +46,12 @@ router.get('/transacoes', authenticate, (req, res, next) => {
   return transactionController.getTransactions(req, res, next);
 });
 
+// Rota de estratégias (alternativa para /api/estrategias)
+router.get('/estrategias', authenticate, (req, res, next) => {
+  const strategyController = require('../controllers/strategyController');
+  return strategyController.getStrategies(req, res, next);
+});
+
 // Rotas adicionais (mantendo as existentes)
 router.use('/users', authenticate, userRoutes);
 router.use('/transactions', authenticate, transactionRoutes);

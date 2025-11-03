@@ -18,6 +18,12 @@ router.use((req, res, next) => {
 // Rotas sem autenticação
 router.use('/auth', authRoutes);
 
+// Rota de login alternativa para compatibilidade
+router.post('/login', (req, res, next) => {
+  const authController = require('../controllers/authController');
+  return authController.login(req, res, next);
+});
+
 // Rotas com autenticação
 const { authenticate } = require('../middlewares/auth');
 
